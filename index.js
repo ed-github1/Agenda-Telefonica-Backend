@@ -1,17 +1,17 @@
 const express = require("express");
-
+const morgan = require("morgan");
 const app = express();
 
-const requestLogger = (request, response, next) => {
-  console.log("Method:", request.method);
-  console.log("Path:  ", request.path);
-  console.log("Body:  ", request.body);
-  console.log("---");
-  next();
-};
-
-app.use(requestLogger);
 app.use(express.json());
+
+// Exercise 3.7
+app.use(morgan('tiny'))
+
+
+// Exercise 3.8
+morgan.token('body', (req, res) => JSON.stringify(req.body));
+app.use(morgan(':method :url :status :response-time ms - :res[content-length] :body'));
+
 
 let persons = [
   {
@@ -78,6 +78,8 @@ app.post("/api/persons/", (request, response) => {
     number: body.number,
     id: generateId(),
   };
+
+
 
   persons.forEach((p) => {
     if (p.name === person.name) {
