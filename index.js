@@ -65,7 +65,6 @@ const generateId = () => {
 app.post("/api/persons/", (request, response) => {
   const body = request.body;
 
-
   if (!body.name) {
     return response.status(400).json({ error: "name missing" });
   }
@@ -74,17 +73,17 @@ app.post("/api/persons/", (request, response) => {
     return response.status(400).json({ error: "number missing" });
   }
 
-   const person = {
+  const person = {
     name: body.name,
     number: body.number,
     id: generateId(),
   };
 
-  if (body.name === person.name) {
-    return response
-      .status(400)
-      .json({ error: "Person with this name  already exists in phonebook" });
-  }
+  persons.forEach((p) => {
+    if (p.name === person.name) {
+      return response.status(400).json("this name already exists in phonebook");
+    }
+  });
 
   persons = persons.concat(person);
   response.json(person);
