@@ -5,13 +5,13 @@ const app = express();
 app.use(express.json());
 
 // Exercise 3.7
-app.use(morgan('tiny'))
-
+app.use(morgan("tiny"));
 
 // Exercise 3.8
-morgan.token('body', (req, res) => JSON.stringify(req.body));
-app.use(morgan(':method :url :status :response-time ms - :res[content-length] :body'));
-
+morgan.token("body", (req, res) => JSON.stringify(req.body));
+app.use(
+  morgan(":method :url :status :response-time ms - :res[content-length] :body")
+);
 
 let persons = [
   {
@@ -78,8 +78,6 @@ app.post("/api/persons/", (request, response) => {
     number: body.number,
     id: generateId(),
   };
-
-
 
   persons.forEach((p) => {
     if (p.name === person.name) {
