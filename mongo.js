@@ -30,6 +30,7 @@ person.save().then((result) => {
 });
 
 Person.find({}).then((result) => {
+  console.log('Phonebook')
   result.forEach((person) => {
     console.log(person);
   });
