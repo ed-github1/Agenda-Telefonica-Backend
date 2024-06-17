@@ -6,11 +6,11 @@ POST http://localhost:3001/api/persons/ HTTP/1.1
 Content-Type: application/json
 
 {
-    "name": "Eddie braun",
+    "name": "Joseph",
     "number": "744-333-444-555"
 }
 
 ###
 
-DELETE http://localhost:3001/api/persons/
+DELETE http://localhost:3001/api/persons/66705085100c6fd25fd1fed2
 
