@@ -21,13 +21,16 @@ app.get("/info", (request, response) => {
   const actualDate = new Date().toDateString();
   const timeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-  response.send(`
+  //Exercises 3.18
+  Person.find({}).then((persons) =>
+    response.send(`
     <div>
        <h2>Phonebook has info for ${persons.length} persons</h2>
     </div>
     <div>
        <p>${actualDate} <br>${timeZone}</br></p>
-    </div>`);
+    </div>`)
+  );
 });
 
 app.get("/api/persons", (request, response) => {
@@ -35,11 +38,6 @@ app.get("/api/persons", (request, response) => {
     response.json(persons);
   });
 });
-
-const generateId = () => {
-  const maxId = persons.length > 0 ? Math.max(...persons.map((n) => n.id)) : 0;
-  return maxId + 1;
-};
 
 app.post("/api/persons/", (request, response) => {
   const body = request.body;
@@ -52,10 +50,10 @@ app.post("/api/persons/", (request, response) => {
     return response.status(400).json({ error: "number missing" });
   }
 
-  const person =  new Person({
+  const person = new Person({
     name: body.name,
     number: body.number,
-    id: generateId(),
+    //id: generateId(),
   });
 
   persons.forEach((p) => {
@@ -66,24 +64,75 @@ app.post("/api/persons/", (request, response) => {
 
   person.save().then((savedPerson) => {
     response.json(savedPerson);
-  })
+  });
 
   persons = persons.concat(person);
 });
 
-app.get("/api/persons/:id", (request, response) => {
-  Person.findById(request.params.id),then(person => 
-    response.json(persons)
-  )
-   
+app.get("/api/persons/:id", (request, response, next) => {
+  Person.findById(request.params.id)
+    .then((person) => {
+      if (person) {
+        response.json(person);
+      } else {
+        response.status(404).end();
+      }
+    })
+    .catch((error) => {
+      next(error);
+    });
 });
+
+//Exercises 3.15
 
 app.delete("/api/persons/:id", (request, response) => {
-  const id = Number(request.params.id);
-  persons = persons.filter((person) => person.id !== id);
+  Person.findByIdAndDelete(request.params.id)
+    .then((result) => {
+      response.status(204).end();
+    })
+    .catch((error) => {
+      next(error);
+    });
 
+  persons = persons.filter((person) => person.id !== id);
   response.status(204).end();
 });
+
+//Exercises 3.17
+app.put("/api/persons/:id", (request, response, next) => {
+  const body = request.body;
+
+  const person = {
+    name: body.name,
+    number: body.number,
+  };
+
+  Person.findByIdAndUpdate(request.params.id, person, { new: true })
+    .then((updatedPerson) => {
+      response.json(updatedPerson);
+    })
+    .catch((error) => next(error));
+});
+
+//Exercises 3.16
+
+const unknownEndpoint = (request, response) => {
+  response.status(404).send({ error: "unknown endpoint" });
+};
+
+app.use(unknownEndpoint);
+
+//Exercises 3.16
+
+const errorHandler = (error, request, response, next) => {
+  console.log(error.message);
+  if (error.name === "CastError") {
+    return response.status(400).send({ error: "malformatted Id" });
+  }
+  next(error);
+};
+
+app.use(errorHandler);
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
